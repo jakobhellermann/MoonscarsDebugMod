@@ -2,8 +2,11 @@
 using System.Reflection;
 using JetBrains.Annotations;
 using ModdingAPI;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Logger = ModdingAPI.Logger;
+using Object = UnityEngine.Object;
 
 namespace MoonscarsDebugMod.DebugMod;
 
@@ -14,11 +17,17 @@ internal class DebugMod : Mod {
     public override string Version() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
     private InputActionMap _keybindings = null!;
+    private NoclipController _noclipController = null!;
 
     public override void Load() {
         Logger.Log("Loaded DebugMod");
 
+        _noclipController = new GameObject().AddComponent<NoclipController>();
+        _noclipController.enabled = false;
+        Object.DontDestroyOnLoad(_noclipController);
+
         _keybindings = GetKeybindings();
+
         _keybindings.Enable();
     }
 
@@ -26,6 +35,7 @@ internal class DebugMod : Mod {
         Logger.Log("Unloaded DebugMod");
 
         _keybindings.Dispose();
+        Object.Destroy(_noclipController.gameObject);
     }
 
 
@@ -36,10 +46,29 @@ internal class DebugMod : Mod {
         SceneManager.LoadScene("MainMenu");
     }
 
+    private void ToggleNoclip() {
+        _noclipController.ToggleNoclip();
+    }
+
+
     private InputActionMap GetKeybindings() {
         var map = new InputActionMap("DebugMod");
         AddButtonAction(map, "FastExit", "o", ExitToMainMenu);
         AddAltModifierButtonAction(map, "ToggleHitboxes", "b", ToggleHitboxes);
+        AddAltModifierButtonAction(map, "ToggleNoclip", "period", ToggleNoclip);
+
+        var noclipMovement = map.AddAction("NoclipMovement");
+        noclipMovement.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/w")
+            .With("Down", "<Keyboard>/s")
+            .With("Left", "<Keyboard>/a")
+            .With("Right", "<Keyboard>/d");
+        var noclipZoom = map.AddAction("NoclipZoom", binding: "<Mouse>/scroll");
+        noclipZoom.performed += ctx => _noclipController.Zoom(ctx.ReadValue<Vector2>().y);
+        var noclipNyoom = map.AddAction("NoclipNyoom", binding: "<Keyboard>/leftShift");
+
+        _noclipController.Movement = noclipMovement;
+        _noclipController.Nyoom = noclipNyoom;
 
         return map;
     }

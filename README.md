@@ -11,3 +11,4 @@
 
 - `O`: Exit to main menu
 - `Alt+B`: Toggle Hitboxes
+- `Alt+.`: Toggle Noclip (WASD, Shift to Boost, Scroll for Zoom)
