@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using ExampleMod;
 using JetBrains.Annotations;
 using ModdingAPI;
 using UnityEngine;
@@ -18,6 +19,7 @@ internal class DebugMod : Mod {
 
     private InputActionMap _keybindings = null!;
     private NoclipController _noclipController = null!;
+    private HitboxRender _hitboxRender = null!;
 
     public override void Load() {
         Logger.Log("Loaded DebugMod");
@@ -25,6 +27,10 @@ internal class DebugMod : Mod {
         _noclipController = new GameObject().AddComponent<NoclipController>();
         _noclipController.enabled = false;
         Object.DontDestroyOnLoad(_noclipController);
+
+        _hitboxRender = new GameObject().AddComponent<HitboxRender>();
+        _hitboxRender.enabled = false;
+        Object.DontDestroyOnLoad(_hitboxRender);
 
         _keybindings = GetKeybindings();
 
@@ -36,10 +42,13 @@ internal class DebugMod : Mod {
 
         _keybindings.Dispose();
         Object.Destroy(_noclipController.gameObject);
+        Object.Destroy(_hitboxRender.gameObject);
     }
 
 
     private void ToggleHitboxes() {
+        _hitboxRender.enabled = !_hitboxRender.enabled;
+        if (_hitboxRender.enabled) _hitboxRender.SearchHitboxes();
     }
 
     private void ExitToMainMenu() {
