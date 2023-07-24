@@ -15,7 +15,8 @@ public class HitboxRender : MonoBehaviour {
         public static readonly HitboxType Trigger = new(new Color(0.5f, 0.5f, 1f), 4); // blue
         public static readonly HitboxType Breakable = new(new Color(1f, 0.75f, 0.8f), 5); // pink
         public static readonly HitboxType Ladder = new(new Color(0.0f, 0.0f, 0.5f), 6); // dark blue
-        public static readonly HitboxType CameraZone = new(new Color(0.5f, 0.0f, 0.5f), 7); // purple 
+        public static readonly HitboxType CameraZone = new(new Color(0.5f, 0.0f, 0.1f), 7); // purple
+        public static readonly HitboxType Terrain = new(Color.magenta, 7); // magenta
         public static readonly HitboxType Other = new(new Color(0.9f, 0.6f, 0.4f), 8); // orange
 
         public readonly Color Color;
@@ -81,10 +82,14 @@ public class HitboxRender : MonoBehaviour {
                 _colliders[HitboxType.DamageTrigger].Add(collider2D);
             else
                 _colliders[HitboxType.Other].Add(collider2D);
+        } else if (collider2D is CompositeCollider2D) {
+            _colliders[HitboxType.Terrain].Add(collider2D);
         }
     }
 
     private bool IsColliderVisible(Collider2D collider) {
+        if (collider is CompositeCollider2D) return true;
+
         var bounds = collider.bounds;
         var min = bounds.min;
         var max = bounds.max;
@@ -202,12 +207,22 @@ public class HitboxRender : MonoBehaviour {
                     Mathf.Clamp(circleRradius / 8, 4, 32));
                 break;
             }
+            case CompositeCollider2D compositeCollider2D: {
+                for (var i = 0; i < compositeCollider2D.pathCount; i++) {
+                    var pathVerts = new Vector2[compositeCollider2D.GetPathPointCount(i)];
+                    compositeCollider2D.GetPath(i, pathVerts);
+                    DrawPointSequence(pathVerts, camera, collider2D, hitboxType, lineWidth);
+                }
+
+                break;
+            }
         }
 
         GUI.depth = origDepth;
     }
 
-    private void DrawPointSequence(List<Vector2> points, Camera camera, Collider2D collider2D, HitboxType hitboxType,
+    private void DrawPointSequence(IReadOnlyList<Vector2> points, Camera camera, Collider2D collider2D,
+        HitboxType hitboxType,
         float lineWidth) {
         for (var i = 0; i < points.Count - 1; i++) {
             var pointA = LocalToScreenPoint(camera, collider2D, points[i]);
