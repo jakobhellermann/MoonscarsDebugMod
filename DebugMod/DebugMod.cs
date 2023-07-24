@@ -20,6 +20,7 @@ internal class DebugMod : Mod {
     private InputActionMap _keybindings = null!;
     private NoclipController _noclipController = null!;
     private HitboxRender _hitboxRender = null!;
+    private DebugInfo _debugInfo = null!;
 
     public override void Load() {
         Logger.Log("Loaded DebugMod");
@@ -32,6 +33,10 @@ internal class DebugMod : Mod {
         _hitboxRender.enabled = false;
         Object.DontDestroyOnLoad(_hitboxRender);
 
+        _debugInfo = new GameObject().AddComponent<DebugInfo>();
+        _debugInfo.enabled = true;
+        Object.DontDestroyOnLoad(_debugInfo);
+
         _keybindings = GetKeybindings();
 
         _keybindings.Enable();
@@ -43,6 +48,7 @@ internal class DebugMod : Mod {
         _keybindings.Dispose();
         Object.Destroy(_noclipController.gameObject);
         Object.Destroy(_hitboxRender.gameObject);
+        Object.Destroy(_debugInfo.gameObject);
     }
 
 
@@ -59,12 +65,16 @@ internal class DebugMod : Mod {
         _noclipController.ToggleNoclip();
     }
 
+    private void ToggleDebugInfo() {
+        _debugInfo.enabled = !_debugInfo.enabled;
+    }
 
     private InputActionMap GetKeybindings() {
         var map = new InputActionMap("DebugMod");
         AddButtonAction(map, "FastExit", "o", ExitToMainMenu);
         AddAltModifierButtonAction(map, "ToggleHitboxes", "b", ToggleHitboxes);
         AddAltModifierButtonAction(map, "ToggleNoclip", "period", ToggleNoclip);
+        AddAltModifierButtonAction(map, "ToggleDebugInfo", "comma", ToggleDebugInfo);
 
         var noclipMovement = map.AddAction("NoclipMovement");
         noclipMovement.AddCompositeBinding("2DVector")
