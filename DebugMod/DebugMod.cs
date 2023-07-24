@@ -17,25 +17,25 @@ internal class DebugMod : Mod {
 
     public override string Version() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+    private GameObject _debugmodGameObject = null!;
     private InputActionMap _keybindings = null!;
     private NoclipController _noclipController = null!;
     private HitboxRender _hitboxRender = null!;
     private DebugInfo _debugInfo = null!;
 
+
     public override void Load() {
         Logger.Log("Loaded DebugMod");
 
-        _noclipController = new GameObject().AddComponent<NoclipController>();
+        _debugmodGameObject = new GameObject();
+        Object.DontDestroyOnLoad(_debugmodGameObject);
+
+        _noclipController = _debugmodGameObject.AddComponent<NoclipController>();
         _noclipController.enabled = false;
-        Object.DontDestroyOnLoad(_noclipController);
-
-        _hitboxRender = new GameObject().AddComponent<HitboxRender>();
+        _hitboxRender = _debugmodGameObject.AddComponent<HitboxRender>();
         _hitboxRender.enabled = false;
-        Object.DontDestroyOnLoad(_hitboxRender);
-
-        _debugInfo = new GameObject().AddComponent<DebugInfo>();
+        _debugInfo = _debugmodGameObject.AddComponent<DebugInfo>();
         _debugInfo.enabled = true;
-        Object.DontDestroyOnLoad(_debugInfo);
 
         _keybindings = GetKeybindings();
 
@@ -46,9 +46,7 @@ internal class DebugMod : Mod {
         Logger.Log("Unloaded DebugMod");
 
         _keybindings.Dispose();
-        Object.Destroy(_noclipController.gameObject);
-        Object.Destroy(_hitboxRender.gameObject);
-        Object.Destroy(_debugInfo.gameObject);
+        Object.Destroy(_debugmodGameObject);
     }
 
 
