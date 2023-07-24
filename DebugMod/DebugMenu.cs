@@ -38,8 +38,19 @@ public class DebugMenu : MonoBehaviour {
         AddButton("Unlock map", DiscoverAllMapAreas);
         AddButton("Forget map", ForgetAllMapAreas);
 
+        AddButton("Pause units", PauseAllUnits);
+        AddButton("Resume units", StartAllUnits);
+
         GUILayout.Space(32);
         AddButton("Close", () => enabled = false);
+    }
+
+    private void PauseAllUnits() {
+        UnitsHandler.Instance.StopAllBehaviours();
+    }
+
+    private void StartAllUnits() {
+        UnitsHandler.Instance.StartAllBehaviours();
     }
 
     private void LoadDevSave() {
