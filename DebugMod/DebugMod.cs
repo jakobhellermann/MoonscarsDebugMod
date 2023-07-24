@@ -75,10 +75,18 @@ internal class DebugMod : Mod {
         _debugMenu.enabled = !_debugMenu.enabled;
     }
 
+    private void TeleportOnMap() {
+        var mapController = Object.FindAnyObjectByType<MapController>();
+        if (!mapController) return;
+
+        MapTeleporter.AskTeleport(mapController);
+    }
+
     private InputActionMap GetKeybindings() {
         var map = new InputActionMap("DebugMod");
         AddButtonAction(map, "FastExit", "o", ExitToMainMenu);
         AddButtonAction(map, "ToggleDebugMenu", "f1", ToggleDebugMenu);
+        AddButtonAction(map, "TeleportOnMap", "space", TeleportOnMap);
         AddAltModifierButtonAction(map, "ToggleHitboxes", "b", ToggleHitboxes);
         AddAltModifierButtonAction(map, "ToggleNoclip", "period", ToggleNoclip);
         AddAltModifierButtonAction(map, "ToggleDebugInfo", "comma", ToggleDebugInfo);

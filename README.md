@@ -14,3 +14,4 @@
 - `Alt+.`: Toggle Noclip (WASD, Shift to Boost, Scroll for Zoom)
 - `Alt+,`: Toggle Debug info
 - `F1`: Open Debug Command Panel
+- `Space` when in map: teleport to location
