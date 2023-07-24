@@ -22,6 +22,7 @@ internal class DebugMod : Mod {
     private NoclipController _noclipController = null!;
     private HitboxRender _hitboxRender = null!;
     private DebugInfo _debugInfo = null!;
+    private DebugMenu _debugMenu = null!;
 
 
     public override void Load() {
@@ -36,6 +37,8 @@ internal class DebugMod : Mod {
         _hitboxRender.enabled = false;
         _debugInfo = _debugmodGameObject.AddComponent<DebugInfo>();
         _debugInfo.enabled = true;
+        _debugMenu = _debugmodGameObject.AddComponent<DebugMenu>();
+        _debugMenu.enabled = false;
 
         _keybindings = GetKeybindings();
 
@@ -67,9 +70,14 @@ internal class DebugMod : Mod {
         _debugInfo.enabled = !_debugInfo.enabled;
     }
 
+    private void ToggleDebugMenu() {
+        _debugMenu.enabled = !_debugMenu.enabled;
+    }
+
     private InputActionMap GetKeybindings() {
         var map = new InputActionMap("DebugMod");
         AddButtonAction(map, "FastExit", "o", ExitToMainMenu);
+        AddButtonAction(map, "ToggleDebugMenu", "f1", ToggleDebugMenu);
         AddAltModifierButtonAction(map, "ToggleHitboxes", "b", ToggleHitboxes);
         AddAltModifierButtonAction(map, "ToggleNoclip", "period", ToggleNoclip);
         AddAltModifierButtonAction(map, "ToggleDebugInfo", "comma", ToggleDebugInfo);
