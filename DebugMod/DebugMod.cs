@@ -41,6 +41,8 @@ internal class DebugMod : Mod {
         _debugMenu = _debugmodGameObject.AddComponent<DebugMenu>();
         _debugMenu.enabled = false;
 
+        SceneManager.sceneLoaded += OnSceneLoad;
+
         _keybindings = GetKeybindings();
 
         _keybindings.Enable();
@@ -49,8 +51,14 @@ internal class DebugMod : Mod {
     public override void Unload() {
         Logger.Log("Unloaded DebugMod");
 
+        SceneManager.sceneLoaded -= OnSceneLoad;
         _keybindings.Dispose();
         Object.Destroy(_debugmodGameObject);
+    }
+
+
+    private void OnSceneLoad(Scene scene, LoadSceneMode loadSceneMode) {
+        if (loadSceneMode == LoadSceneMode.Single) _debugInfo.InMainMenu = scene.name == "MainMenu";
     }
 
 

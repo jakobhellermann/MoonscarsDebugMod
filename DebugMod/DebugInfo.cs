@@ -7,12 +7,11 @@ namespace MoonscarsDebugMod.DebugMod;
 
 public class DebugInfo : MonoBehaviour {
     private readonly GUIStyle _style = new(GUIStyle.none);
-
-    private const TextAnchor AnchorMainMenu = TextAnchor.UpperRight;
-    private const TextAnchor AnchorInGame = TextAnchor.LowerRight;
+    public bool InMainMenu = true;
 
     private void Start() {
         _style.normal.textColor = Color.white;
+        _style.alignment = TextAnchor.LowerRight;
         // ReSharper disable once Unity.UnknownResource
         _style.font = Resources.Load<Font>("fonts & materials/Carnas W03 Light");
         _style.padding = new RectOffset(5, 5, 5, 5);
@@ -28,16 +27,12 @@ public class DebugInfo : MonoBehaviour {
 
 
     private void LateUpdate() {
-        var sceneController = SceneController.Instance;
-
-        _style.alignment = sceneController is null ? AnchorMainMenu : AnchorInGame;
-
-        if (sceneController is null) {
-            _infoText = "Main menu";
+        if (InMainMenu) {
+            _infoText = "";
             return;
         }
 
-        var player = sceneController.Player;
+        var player = SceneController.Instance.Player;
         var playerPawn = player.PlayerPawn;
         var playerRigidbody = playerPawn.UnitRigidBody;
         var playerModifierController = playerPawn.PlayerModifierController;
