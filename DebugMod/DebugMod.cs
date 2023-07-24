@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using ExampleMod;
 using JetBrains.Annotations;
 using ModdingAPI;
+using MoonscarsDebugMod.DebugMod.Hitbox;
+using MoonscarsUI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;

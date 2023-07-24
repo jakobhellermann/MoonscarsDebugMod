@@ -151,6 +151,43 @@ public static class Drawing {
     }
 
 
+    public static void DrawRightHalfCircle(Vector2 center, int radius, Color color, float width, bool antiAlias,
+        int segmentsPerQuarter) {
+        var rh = radius * 0.551915024494f;
+
+        var p1 = new Vector2(center.x, center.y - radius);
+        var p1_tan_b = new Vector2(center.x + rh, center.y - radius);
+
+        var p2 = new Vector2(center.x + radius, center.y);
+        var p2_tan_a = new Vector2(center.x + radius, center.y - rh);
+        var p2_tan_b = new Vector2(center.x + radius, center.y + rh);
+
+        var p3 = new Vector2(center.x, center.y + radius);
+        var p3_tan_b = new Vector2(center.x + rh, center.y + radius);
+
+        DrawBezierLine(p1, p1_tan_b, p2, p2_tan_a, color, width, antiAlias, segmentsPerQuarter);
+        DrawBezierLine(p2, p2_tan_b, p3, p3_tan_b, color, width, antiAlias, segmentsPerQuarter);
+    }
+
+    public static void DrawLeftHalfCircle(Vector2 center, int radius, Color color, float width, bool antiAlias,
+        int segmentsPerQuarter) {
+        var rh = radius * 0.551915024494f;
+
+        var p1 = new Vector2(center.x, center.y - radius);
+        var p1_tan_a = new Vector2(center.x - rh, center.y - radius);
+
+        var p3 = new Vector2(center.x, center.y + radius);
+        var p3_tan_a = new Vector2(center.x - rh, center.y + radius);
+
+        var p4 = new Vector2(center.x - radius, center.y);
+        var p4_tan_a = new Vector2(center.x - radius, center.y - rh);
+        var p4_tan_b = new Vector2(center.x - radius, center.y + rh);
+
+        DrawBezierLine(p3, p3_tan_a, p4, p4_tan_b, color, width, antiAlias, segmentsPerQuarter);
+        DrawBezierLine(p4, p4_tan_a, p1, p1_tan_a, color, width, antiAlias, segmentsPerQuarter);
+    }
+
+
     public static void DrawCircle(Vector2 center, int radius, Color color, float width, bool antiAlias,
         int segmentsPerQuarter) {
         var rh = radius * 0.551915024494f;

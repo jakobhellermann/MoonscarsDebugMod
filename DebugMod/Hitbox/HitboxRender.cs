@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using ExampleMod;
 using UnityEngine;
 using Logger = ModdingAPI.Logger;
 
-namespace ExampleMod;
+namespace MoonscarsDebugMod.DebugMod.Hitbox;
 
 public class HitboxRender : MonoBehaviour {
     private readonly struct HitboxType : IComparable<HitboxType> {
@@ -167,37 +168,74 @@ public class HitboxRender : MonoBehaviour {
 
                 break;
             case CapsuleCollider2D capsuleCollider2D:
-                var size = capsuleCollider2D.size;
-                var radius = 0.5f * size.x;
-                var hs = size / 2f;
-                var tl = new Vector2(-hs.x, hs.y - radius);
-                var tr = new Vector2(hs.x, hs.y - radius);
-                var bl = new Vector2(-hs.x, -hs.y + radius);
-                var br = new Vector2(hs.x, -hs.y + radius);
+                if (capsuleCollider2D.direction == CapsuleDirection2D.Vertical) {
+                    var size = capsuleCollider2D.size;
+                    var radius = 0.5f * size.x;
+                    var hs = size / 2f;
 
-                Drawing.DrawLine(
-                    LocalToScreenPoint(_camera, collider2D, tl),
-                    LocalToScreenPoint(_camera, collider2D, bl),
-                    hitboxType.Color, lineWidth, true
-                );
-                Drawing.DrawLine(
-                    LocalToScreenPoint(_camera, collider2D, tr),
-                    LocalToScreenPoint(_camera, collider2D, br),
-                    hitboxType.Color, lineWidth, true
-                );
+                    var tl = new Vector2(-hs.x, hs.y - radius);
+                    var tr = new Vector2(hs.x, hs.y - radius);
+                    var bl = new Vector2(-hs.x, -hs.y + radius);
+                    var br = new Vector2(hs.x, -hs.y + radius);
 
-                var screenSpaceRadius = (int)Math.Round(0.5f * (LocalToScreenPoint(_camera, collider2D, tr).x -
-                                                                LocalToScreenPoint(_camera, collider2D, tl).x));
-                var segments = Mathf.Clamp(screenSpaceRadius / 8, 4, 32);
+                    Drawing.DrawLine(
+                        LocalToScreenPoint(_camera, collider2D, tl),
+                        LocalToScreenPoint(_camera, collider2D, bl),
+                        hitboxType.Color, lineWidth, true
+                    );
+                    Drawing.DrawLine(
+                        LocalToScreenPoint(_camera, collider2D, tr),
+                        LocalToScreenPoint(_camera, collider2D, br),
+                        hitboxType.Color, lineWidth, true
+                    );
 
-                Drawing.DrawUpperHalfCircle(
-                    LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, hs.y - radius)),
-                    screenSpaceRadius,
-                    HitboxType.Player.Color, lineWidth, true, segments);
-                Drawing.DrawLowerHalfCircle(
-                    LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, -hs.y + radius)),
-                    screenSpaceRadius,
-                    HitboxType.Player.Color, lineWidth, true, segments);
+                    var screenSpaceRadius = (int)Math.Round(0.5f * (LocalToScreenPoint(_camera, collider2D, tr).x -
+                                                                    LocalToScreenPoint(_camera, collider2D, tl).x));
+                    var segments = Mathf.Clamp(screenSpaceRadius / 8, 4, 32);
+
+                    Drawing.DrawUpperHalfCircle(
+                        LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, hs.y - radius)),
+                        screenSpaceRadius,
+                        hitboxType.Color, lineWidth, true, segments);
+                    Drawing.DrawLowerHalfCircle(
+                        LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, -hs.y + radius)),
+                        screenSpaceRadius,
+                        hitboxType.Color, lineWidth, true, segments);
+                } else {
+                    var size = capsuleCollider2D.size;
+                    var radius = 0.5f * size.y;
+                    var hs = size / 2f;
+
+                    var tl = new Vector2(-hs.x + radius, hs.y);
+                    var tr = new Vector2(hs.x - radius, hs.y);
+                    var bl = new Vector2(-hs.x + radius, -hs.y);
+                    var br = new Vector2(hs.x - radius, -hs.y);
+
+                    Drawing.DrawLine(
+                        LocalToScreenPoint(_camera, collider2D, tl),
+                        LocalToScreenPoint(_camera, collider2D, tr),
+                        hitboxType.Color, lineWidth, true
+                    );
+                    Drawing.DrawLine(
+                        LocalToScreenPoint(_camera, collider2D, bl),
+                        LocalToScreenPoint(_camera, collider2D, br),
+                        hitboxType.Color, lineWidth, true
+                    );
+
+                    var screenSpaceRadius = (int)Math.Round(0.5f * (LocalToScreenPoint(_camera, collider2D, br).y -
+                                                                    LocalToScreenPoint(_camera, collider2D, tr).y));
+                    var segments = Mathf.Clamp(screenSpaceRadius / 16, 4, 32);
+
+                    Drawing.DrawRightHalfCircle(
+                        LocalToScreenPoint(camera, collider2D, new Vector2(hs.x - radius, 0)),
+                        screenSpaceRadius,
+                        hitboxType.Color, lineWidth, true, segments);
+                    Drawing.DrawLeftHalfCircle(
+                        LocalToScreenPoint(camera, collider2D, new Vector2(-hs.x + radius, 0)),
+                        screenSpaceRadius,
+                        hitboxType.Color, lineWidth, true, segments);
+                }
+
                 break;
             case CircleCollider2D circleCollider2D: {
                 var center = LocalToScreenPoint(camera, collider2D, Vector2.zero);
