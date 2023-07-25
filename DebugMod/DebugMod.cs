@@ -24,6 +24,7 @@ internal class DebugMod : Mod {
     private HitboxRender _hitboxRender = null!;
     private DebugInfo _debugInfo = null!;
     private DebugMenu _debugMenu = null!;
+    private static UnityDebugPolyfill _unityDebugPolyfill = null!;
 
     private SavestateManager _savestateManager = new();
 
@@ -42,6 +43,9 @@ internal class DebugMod : Mod {
         _debugInfo.enabled = true;
         _debugMenu = _debugmodGameObject.AddComponent<DebugMenu>();
         _debugMenu.enabled = false;
+        _unityDebugPolyfill = _debugmodGameObject.AddComponent<UnityDebugPolyfill>();
+        _unityDebugPolyfill.enabled = false;
+        _unityDebugPolyfill.Hook();
 
         SceneManager.sceneLoaded += OnSceneLoad;
 
@@ -55,9 +59,10 @@ internal class DebugMod : Mod {
 
         SceneManager.sceneLoaded -= OnSceneLoad;
         _keybindings.Dispose();
+
+        _unityDebugPolyfill.Unhook();
         Object.Destroy(_debugmodGameObject);
     }
-
 
     private void OnSceneLoad(Scene scene, LoadSceneMode loadSceneMode) {
         if (loadSceneMode == LoadSceneMode.Single) _debugInfo.InMainMenu = scene.name == "MainMenu";

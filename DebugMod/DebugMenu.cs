@@ -8,10 +8,17 @@ namespace MoonscarsDebugMod.DebugMod;
 
 public class DebugMenu : MonoBehaviour {
     private GUIStyle? _buttonStyle;
+    private GUIStyle? _toggleStyle;
     private Rect _area = new(100, 100, 0, 0);
 
     private bool _cursorVisible;
     private CursorLockMode _cursorLockState;
+
+    private UnityDebugPolyfill _unityDebugPolyfill = null!;
+
+    private void Start() {
+        _unityDebugPolyfill = GetComponent<UnityDebugPolyfill>();
+    }
 
     private void OnEnable() {
         _cursorVisible = Cursor.visible;
@@ -29,10 +36,11 @@ public class DebugMenu : MonoBehaviour {
 
     private void DebugPanel() {
         var sceneController = SceneController.Instance;
-        AddEnabled(sceneController is not null, () => {
-            AddButton("Respawn", () => sceneController!.RespawnPlayer(false, false));
-            AddButton("Kill", () => sceneController!.KillPlayer());
-        });
+        AddEnabled(sceneController is not null,
+            () => {
+                AddButton("Respawn", () => sceneController!.RespawnPlayer(false, false));
+                AddButton("Kill", () => sceneController!.KillPlayer());
+            });
 
         AddButton("Load dev save", LoadDevSave);
         AddButton("Unlock map", DiscoverAllMapAreas);
@@ -40,6 +48,10 @@ public class DebugMenu : MonoBehaviour {
 
         AddButton("Pause units", PauseAllUnits);
         AddButton("Resume units", StartAllUnits);
+
+        AddToggle("Display Debug.Line",
+            _unityDebugPolyfill.enabled,
+            val => _unityDebugPolyfill.enabled = val);
 
         GUILayout.Space(32);
         AddButton("Close", () => enabled = false);
@@ -72,7 +84,7 @@ public class DebugMenu : MonoBehaviour {
     }
 
     private void OnGUI() {
-        _buttonStyle ??= ButtonStyle();
+        if (_buttonStyle is null || _toggleStyle is null) InitStyles();
 
         _area = GUILayout.Window(0, _area, _ => DebugPanel(), "Debug Window");
     }
@@ -81,23 +93,48 @@ public class DebugMenu : MonoBehaviour {
         if (GUILayout.Button(label, _buttonStyle)) performed();
     }
 
-    private GUIStyle ButtonStyle() {
-        var style = new GUIStyle(GUI.skin.button);
+    private void AddToggle(string label, bool active, Action<bool> performed) {
+        const string prefixActive = "✓";
+        const string prefixInactive = "✗";
+
+        var text = (active ? prefixActive : prefixInactive) + " " + label;
+        var newValue = GUILayout.Toggle(active, text, _toggleStyle);
+        if (newValue != active) performed(newValue);
+    }
+
+    private void InitStyles() {
+        var buttonStyle = new GUIStyle(GUI.skin.button);
+        var toggleStyle = new GUIStyle(GUI.skin.button);
+
         var backgroundNormal = MakeBackgroundTexture(10, 10, new Color(0.2f, 0.2f, 0.2f));
         var backgroundHover = MakeBackgroundTexture(10, 10, new Color(0.1f, 0.5f, 0.6f));
         var backgroundActive = MakeBackgroundTexture(10, 10, new Color(0.1f, 0.4f, 0.6f));
         var backgroundFocused = MakeBackgroundTexture(10, 10, new Color(0.6f, 0.4f, 0.6f));
-        style.normal.background = backgroundNormal;
-        style.hover.background = backgroundHover;
-        style.active.background = backgroundActive;
-        style.focused.background = backgroundFocused;
-        return style;
+
+        buttonStyle.normal.background = backgroundNormal;
+        buttonStyle.hover.background = backgroundHover;
+        buttonStyle.active.background = backgroundActive;
+        buttonStyle.focused.background = backgroundFocused;
+
+        toggleStyle.normal.background = backgroundNormal;
+        toggleStyle.hover.background = backgroundHover;
+        toggleStyle.active.background = backgroundActive;
+        toggleStyle.focused.background = backgroundFocused;
+        toggleStyle.onNormal.background = backgroundNormal;
+        toggleStyle.onHover.background = backgroundHover;
+        toggleStyle.onActive.background = backgroundActive;
+        toggleStyle.onFocused.background = backgroundFocused;
+
+        _buttonStyle = buttonStyle;
+        _toggleStyle = toggleStyle;
     }
 
     private Texture2D MakeBackgroundTexture(int width, int height, Color color) {
         var pixels = new Color[width * height];
 
-        for (var i = 0; i < pixels.Length; i++) pixels[i] = color;
+        for (var i = 0; i < pixels.Length; i++) {
+            pixels[i] = color;
+        }
 
         var backgroundTexture = new Texture2D(width, height);
         backgroundTexture.hideFlags = HideFlags.DontUnloadUnusedAsset;
