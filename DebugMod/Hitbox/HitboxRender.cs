@@ -112,6 +112,8 @@ public class HitboxRender : MonoBehaviour {
 
 
     public void OnGUI() {
+        if (Event.current.type != EventType.Repaint) return;
+
         if (ReferenceEquals(SceneController.Instance, null)) return;
 
         _camera = CameraController.Instance.Camera;
@@ -155,7 +157,10 @@ public class HitboxRender : MonoBehaviour {
                 DrawPointSequence(boxPoints, camera, collider2D, hitboxType, lineWidth);
                 break;
             case EdgeCollider2D edgeCollider2D:
-                DrawPointSequence(new List<Vector2>(edgeCollider2D.points), camera, collider2D, hitboxType,
+                DrawPointSequence(new List<Vector2>(edgeCollider2D.points),
+                    camera,
+                    collider2D,
+                    hitboxType,
                     lineWidth);
                 break;
             case PolygonCollider2D polygonCollider2D:
@@ -181,12 +186,16 @@ public class HitboxRender : MonoBehaviour {
                     Drawing.DrawLine(
                         LocalToScreenPoint(_camera, collider2D, tl),
                         LocalToScreenPoint(_camera, collider2D, bl),
-                        hitboxType.Color, lineWidth, true
+                        hitboxType.Color,
+                        lineWidth,
+                        true
                     );
                     Drawing.DrawLine(
                         LocalToScreenPoint(_camera, collider2D, tr),
                         LocalToScreenPoint(_camera, collider2D, br),
-                        hitboxType.Color, lineWidth, true
+                        hitboxType.Color,
+                        lineWidth,
+                        true
                     );
 
                     var screenSpaceRadius = (int)Math.Round(0.5f * (LocalToScreenPoint(_camera, collider2D, tr).x -
@@ -196,11 +205,17 @@ public class HitboxRender : MonoBehaviour {
                     Drawing.DrawUpperHalfCircle(
                         LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, hs.y - radius)),
                         screenSpaceRadius,
-                        hitboxType.Color, lineWidth, true, segments);
+                        hitboxType.Color,
+                        lineWidth,
+                        true,
+                        segments);
                     Drawing.DrawLowerHalfCircle(
                         LocalToScreenPoint(camera, collider2D, new Vector2(0.0f, -hs.y + radius)),
                         screenSpaceRadius,
-                        hitboxType.Color, lineWidth, true, segments);
+                        hitboxType.Color,
+                        lineWidth,
+                        true,
+                        segments);
                 } else {
                     var size = capsuleCollider2D.size;
                     var radius = 0.5f * size.y;
@@ -214,12 +229,16 @@ public class HitboxRender : MonoBehaviour {
                     Drawing.DrawLine(
                         LocalToScreenPoint(_camera, collider2D, tl),
                         LocalToScreenPoint(_camera, collider2D, tr),
-                        hitboxType.Color, lineWidth, true
+                        hitboxType.Color,
+                        lineWidth,
+                        true
                     );
                     Drawing.DrawLine(
                         LocalToScreenPoint(_camera, collider2D, bl),
                         LocalToScreenPoint(_camera, collider2D, br),
-                        hitboxType.Color, lineWidth, true
+                        hitboxType.Color,
+                        lineWidth,
+                        true
                     );
 
                     var screenSpaceRadius = (int)Math.Round(0.5f * (LocalToScreenPoint(_camera, collider2D, br).y -
@@ -229,11 +248,17 @@ public class HitboxRender : MonoBehaviour {
                     Drawing.DrawRightHalfCircle(
                         LocalToScreenPoint(camera, collider2D, new Vector2(hs.x - radius, 0)),
                         screenSpaceRadius,
-                        hitboxType.Color, lineWidth, true, segments);
+                        hitboxType.Color,
+                        lineWidth,
+                        true,
+                        segments);
                     Drawing.DrawLeftHalfCircle(
                         LocalToScreenPoint(camera, collider2D, new Vector2(-hs.x + radius, 0)),
                         screenSpaceRadius,
-                        hitboxType.Color, lineWidth, true, segments);
+                        hitboxType.Color,
+                        lineWidth,
+                        true,
+                        segments);
                 }
 
                 break;
@@ -241,7 +266,11 @@ public class HitboxRender : MonoBehaviour {
                 var center = LocalToScreenPoint(camera, collider2D, Vector2.zero);
                 var right = LocalToScreenPoint(camera, collider2D, Vector2.right * circleCollider2D.radius);
                 var circleRradius = (int)Math.Round(Vector2.Distance(center, right));
-                Drawing.DrawCircle(center, circleRradius, hitboxType.Color, lineWidth, true,
+                Drawing.DrawCircle(center,
+                    circleRradius,
+                    hitboxType.Color,
+                    lineWidth,
+                    true,
                     Mathf.Clamp(circleRradius / 8, 4, 32));
                 break;
             }
