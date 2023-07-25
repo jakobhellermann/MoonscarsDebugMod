@@ -25,6 +25,8 @@ internal class DebugMod : Mod {
     private DebugInfo _debugInfo = null!;
     private DebugMenu _debugMenu = null!;
 
+    private SavestateManager _savestateManager = new();
+
 
     public override void Load() {
         Logger.Log("Loaded DebugMod");
@@ -94,6 +96,8 @@ internal class DebugMod : Mod {
         var map = new InputActionMap("DebugMod");
         AddButtonAction(map, "FastExit", "o", ExitToMainMenu);
         AddButtonAction(map, "ToggleDebugMenu", "f1", ToggleDebugMenu);
+        AddButtonAction(map, "CreateSaveState", "f2", _savestateManager.Save);
+        AddButtonAction(map, "LoadSaveState", "f3", _savestateManager.Load);
         AddButtonAction(map, "TeleportOnMap", "space", TeleportOnMap);
         AddAltModifierButtonAction(map, "ToggleHitboxes", "b", ToggleHitboxes);
         AddAltModifierButtonAction(map, "ToggleNoclip", "period", ToggleNoclip);
